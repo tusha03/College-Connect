@@ -1,0 +1,75 @@
+package rcpit.comp1.services;
+
+import java.io.IOException;
+import java.sql.*;
+import java.sql.PreparedStatement;
+
+import javax.servlet.ServletException;
+import javax.servlet.http.HttpServlet;
+import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
+
+import rcpit.comp1.connectdb.ConnectDB;
+import rcpit.comp1.connectdb.SetEmail;
+
+/**
+ * Servlet implementation class TPOAddCom
+ */
+public class TPOAddCom extends HttpServlet {
+	private static final long serialVersionUID = 1L;
+       
+    /**
+     * @see HttpServlet#HttpServlet()
+     */
+    public TPOAddCom() {
+        super();
+        // TODO Auto-generated constructor stub
+    }
+
+	/**
+	 * @see HttpServlet#doGet(HttpServletRequest request, HttpServletResponse response)
+	 */
+	protected void doGet(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
+		// TODO Auto-generated method stub
+		response.getWriter().append("Served at: ").append(request.getContextPath());
+	}
+
+	/**
+	 * @see HttpServlet#doPost(HttpServletRequest request, HttpServletResponse response)
+	 */
+	protected void doPost(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
+		// TODO Auto-generated method stub
+		doGet(request, response);
+		String comment = request.getParameter("comment");
+		String user = SetEmail.getUemail();
+		int jobid = SetEmail.getJobid();
+		int tpoid=0;
+		try
+		{
+			Connection con = ConnectDB.connectionDB();
+			PreparedStatement ps1 = con.prepareStatement("select * from tpo_tbl where tpoemail=?");
+			ps1.setString(1, user);
+			ResultSet rs = ps1.executeQuery();
+			if(rs.next())
+			{
+				tpoid=rs.getInt(1);
+			}
+			PreparedStatement ps = con.prepareStatement("insert into jobcon_tbl values(?,?,?,?,?)");
+			ps.setInt(1,0);
+			ps.setInt(2,jobid);
+			ps.setInt(3,tpoid);
+			ps.setString(4,user);
+			ps.setString(5,comment);
+			int i =ps.executeUpdate();
+			if(i==1)
+			{
+				response.sendRedirect("TPOComment.jsp");
+			}
+		}
+		catch(Exception e)
+		{
+			e.printStackTrace();
+		}
+	}
+
+}
